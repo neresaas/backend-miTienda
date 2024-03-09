@@ -1,11 +1,23 @@
 const express = require('express');
 const database = require('../database');
+const e = require('express');
 
 const routerItems = express.Router();
 
 routerItems.get('/', async (req, res) => {
     database.connect()
-    const items = await database.query('SELECT * FROM items')
+
+    let items = []
+
+    if (req.query.p != undefined && !isNaN(req.query.p)) {
+        let page = parseInt(req.query.p)
+        let eP = 2
+        items = await database.query('SELECT * FROM items OFFSET ? ROWS FETCH NEXT ? ROWS ONLY', [(page * eP) - eP, eP])
+
+    } else {
+        items = await database.query('SELECT * FROM items')
+    }
+    
     database.disConnect()
     res.json(items)
 });
