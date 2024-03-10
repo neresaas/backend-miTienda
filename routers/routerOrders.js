@@ -28,4 +28,16 @@ routerOrders.get('/:id', async (req, res) => {
     res.json(orders)
 });
 
+routerOrders.post('/', async (req, res) => {
+    let DNIClient = req.body.DNIClient
+    if (DNIClient == undefined) {
+        return res.status(400).json({error: 'no DNIClient in body'})
+    }
+    database.connect()
+    let insertedOrder = await database.query('INSERT INTO orders (DNIClient, state) VALUES (?, 0)',
+        [DNIClient])
+    database.disConnect()
+    res.json({inserted: insertedOrder})
+});
+
 module.exports = routerOrders;
